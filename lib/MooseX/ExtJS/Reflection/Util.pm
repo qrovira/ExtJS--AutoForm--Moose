@@ -23,7 +23,7 @@ sub _recursive_reflect {
     $done->{pkgs}{$meta->name} = 1;
 
     # Recurse superclasses when possible
-    if($meta->can("superclasses")) {
+    if($meta->isa("Class::MOP::Class")) {
         foreach my $pkg ($meta->superclasses) {
             my $meta = Class::MOP::Class->initialize($pkg);
             next if $done->{pkgs}{$meta->name};
