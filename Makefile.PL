@@ -3,10 +3,10 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME                 => 'ExtJS::Reflection',
+    NAME                 => 'MooseX::ExtJS::Reflection',
     AUTHOR               => q{Quim Rovira <quim@rovira.cat>},
-    VERSION_FROM         => 'lib/ExtJS/Reflection.pm',
-    ABSTRACT_FROM        => 'lib/ExtJS/Reflection.pm',
+    VERSION_FROM         => 'lib/MooseX/ExtJS/Reflection.pm',
+    ABSTRACT_FROM        => 'lib/MooseX/ExtJS/Reflection.pm',
     ($ExtUtils::MakeMaker::VERSION >= 6.3002
       ? ('LICENSE'=> 'perl')
       : ()),
@@ -14,8 +14,7 @@ WriteMakefile(
     PREREQ_PM => {
         'Test::More'     => 0,
 	'JSON::Any'      => 0,
-	'Module::Loaded' => 0,
     },
     dist                 => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean                => { FILES => 'ExtJS-Reflection-*' },
+    clean                => { FILES => 'MooseX-ExtJS-Reflection-*' },
 );

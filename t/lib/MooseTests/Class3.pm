@@ -1,17 +1,21 @@
 package MooseTests::Class3;
 
 use Moose;
+use JSON::Any;
 
 extends "MooseTests::Class1";
 with "MooseTests::Role1";
 
-with "ExtJS::Reflection::Moose";
+with "MooseX::ExtJS::Reflection";
 
 has attr3 => ( is => "ro", isa => "Str" );
 
 sub results {
     my @fields = (
-            { title => "attr3", xtype => "textfield" },
+            { name => "attr3", fieldLabel => "attr3", xtype => "textfield" },
+    );
+    my @obj_fields = (
+            { name => "attr3", fieldLabel => "attr3", xtype => "textfield", readOnly => JSON::Any::true },
     );
     return {
         simple => [
@@ -19,13 +23,27 @@ sub results {
             @{ MooseTests::Role1->results()->{simple} },
             @fields 
         ],
+        obj_simple => [
+            @{ MooseTests::Class1->results()->{obj_simple} },
+            @{ MooseTests::Role1->results()->{obj_simple} },
+            @obj_fields 
+        ],
         hierarchy => [
             @{ MooseTests::Class1->results()->{hierarchy} },
             @{ MooseTests::Role1->results()->{hierarchy} },
             {
-                'children' => [ @fields ],
+                'items' => [ @fields ],
                 'title' => 'MooseTests::Class3',
-                'xtype' => 'fieldgroup'
+                'xtype' => 'fieldset'
+            }
+        ],
+        obj_hierarchy => [
+            @{ MooseTests::Class1->results()->{obj_hierarchy} },
+            @{ MooseTests::Role1->results()->{obj_hierarchy} },
+            {
+                'items' => [ @obj_fields ],
+                'title' => 'MooseTests::Class3',
+                'xtype' => 'fieldset'
             }
         ],
     };

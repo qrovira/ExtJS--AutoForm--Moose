@@ -3,30 +3,22 @@ package MooseTests::Class0;
 use Moose;
 use JSON::Any;
 
-with "ExtJS::Reflection::Moose";
+use Moose::Util::TypeConstraints;
 
-for (qw(Str Num Int Bool)) {
-    has lc($_) => ( is => "rw", isa => $_ );
-}
+with "MooseX::ExtJS::Reflection";
 
-sub results {
-    my @fields = (
-        { title => "str", xtype => "textfield" },
-        { title => "num", xtype => "numberfield", allowDecimals => JSON::Any::true },
-        { title => "int", xtype => "numberfield", allowDecimals => JSON::Any::false },
-        { title => "bool", xtype => "checkbox" },
-    );
+# Simple attributes
+has 'str'   => ( is => "rw", isa => "Str" );
+has 'num'   => ( is => "rw", isa => "Num" );
+has 'int'   => ( is => "rw", isa => "Int" );
+has 'bool'  => ( is => "rw", isa => "Bool" );
+has 'tenum' => ( is => "rw", isa => enum([qw(val1 val2 val3)]) );
 
-    return {
-        simple => [ @fields ],
-        hierarchy => [
-            {
-                'children' => [ @fields ],
-                'title' => 'MooseTests::Class0',
-                'xtype' => 'fieldgroup'
-            },
-        ],
-    };
-}
+# Read-only attributes
+has 'str_ro'   => ( is => "ro", isa => "Str" );
+has 'num_ro'   => ( is => "ro", isa => "Num" );
+has 'int_ro'   => ( is => "ro", isa => "Int" );
+has 'bool_ro'  => ( is => "ro", isa => "Bool" );
+has 'tenum_ro' => ( is => "ro", isa => enum([qw(val1 val2 val3)]) );
 
 1;

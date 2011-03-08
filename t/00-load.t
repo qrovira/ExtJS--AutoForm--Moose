@@ -1,12 +1,14 @@
 #!perl -T
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 BEGIN {
-    use_ok( 'ExtJS::Reflection' ) || print "Bail out!
+    use_ok( 'MooseX::ExtJS::Reflection' ) || print "Bail out!
 ";
-    use_ok( 'ExtJS::Reflection::Moose' ) || print "Bail out!
+    use_ok( 'MooseX::ExtJS::Reflection::Types' ) || print "Bail out!
+";
+    use_ok( 'MooseX::ExtJS::Reflection::Util' ) || print "Bail out!
 ";
 }
 
-diag( "Testing ExtJS::Reflection $ExtJS::Reflection::VERSION, Perl $], $^X" );
+diag( "Testing ExtJS::Reflection $MooseX::ExtJS::Reflection::VERSION, Perl $], $^X" );
