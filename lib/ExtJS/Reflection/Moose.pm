@@ -12,7 +12,7 @@ use JSON::Any;
 
 Moose::Exporter->setup_import_methods(
     as_is => [ qw(
-        extjs reflect
+        reflect extjs_template extjs_value
     ) ],
 );
 
@@ -20,24 +20,31 @@ my %EXTJS_DEFINITIONS = ();
 
 =head1 NAME
 
-ExtJS::Reflection::Moose - The great new ExtJS::Reflection::Moose!
+ExtJS::Reflection::Moose - Moose role for ExtJS form autogeneration
 
 =cut
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+    package MyApp::Model::MyEntity;
 
-Perhaps a little code snippet.
+    use Moose;
 
-    use ExtJS::Reflection::Moose;
+    extends 'MyApp::Model::MyParentEntity';
+    with 'ExtJS::Reflection::Moose';
 
-    my $foo = ExtJS::Reflection::Moose->new();
+    has 'some_attribute' => { is => "rw", isa => "Str" };
+    has 'some_other' => { is => "ro", isa => "Num" };
+
     ...
+
+    $entity->extjs_form();
+    $entity->json_extjs_form();
+    $entity->extjs_form( hierarchy => 1, strip => "MyApp::Model::", cleanup => "cute" );
 
 =cut
 
-=head1 SUBROUTINES/METHODS
+=head1 DESCRIPTION
 
 =cut
 
@@ -45,22 +52,23 @@ Perhaps a little code snippet.
 #
 # SYNTAX CURRY
 #
-sub extjs($) { { extjs => $_[0]  } }
+sub extjs_template($) { { template => $_[0] } }
+sub extjs_value(&)    { { value    => $_[0] } }
 
-sub reflect($$) {
+sub reflect($$;$) {
     my $type_name = shift;
     my %p = map { %{$_} } @_; #really useless here. done this way since I was hoping to extend own Moose (sub)type sugar
 
     if($EXTJS_DEFINITIONS{$type_name})
     { _confess("The type reflection to extjs for type $type_name already exists"); }
 
-    $EXTJS_DEFINITIONS{$type_name} = $p{extjs};
+    $EXTJS_DEFINITIONS{$type_name} = { template => $p{template}, value => $p{value} };
 }
 
-reflect 'Str'  => extjs { xtype => "textfield" };
-reflect 'Num'  => extjs { xtype => "numberfield", allowDecimals => JSON::Any::true };
-reflect 'Int'  => extjs { xtype => "numberfield", allowDecimals => JSON::Any::false };
-reflect 'Bool' => extjs { xtype => "checkbox" };
+reflect 'Str'  => extjs_template { xtype => "textfield" };
+reflect 'Num'  => extjs_template { xtype => "numberfield", allowDecimals => JSON::Any::true };
+reflect 'Int'  => extjs_template { xtype => "numberfield", allowDecimals => JSON::Any::false };
+reflect 'Bool' => extjs_template { xtype => "checkbox" };
 
 
 
@@ -78,7 +86,7 @@ sub extjs_form {
     my $meta = Class::MOP::Class->initialize(ref($self) || $self);
     my $options = {@_};
 
-    return _recursive_reflect( $meta, $self, $options );
+    return _recursive_reflect( $meta, ref($self) ? $self : undef, $options );
 }
 
 sub json_extjs_form {
@@ -90,9 +98,10 @@ no Moose::Role; # will this keep internals from class definition?
 
 
 sub _recursive_reflect {
-    my ($meta, $class, $options, $done) = @_;
+    my ($meta, $obj, $options, $done, $tlmeta) = @_;
     my @extjs = ();
     $done ||= {pkgs => {}, attributes => {}};
+    $tlmeta ||= $meta;
 
     $done->{pkgs}{$meta->name} = 1;
 
@@ -101,7 +110,7 @@ sub _recursive_reflect {
         foreach my $pkg ($meta->superclasses) {
             my $meta = Class::MOP::Class->initialize($pkg);
             next if $done->{pkgs}{$meta->name};
-            push @extjs, _recursive_reflect($meta, $class, $options, $done);
+            push @extjs, _recursive_reflect($meta, $obj, $options, $done, $tlmeta);
             $done->{pkgs}{$meta->name} = 1;
         }
     }
@@ -109,7 +118,7 @@ sub _recursive_reflect {
     # Recurse roles
     foreach my $pkg ($meta->calculate_all_roles) {
         next if $done->{pkgs}{$pkg->name};
-        push @extjs, _recursive_reflect($pkg, $class, $options, $done);
+        push @extjs, _recursive_reflect($pkg, $obj, $options, $done, $tlmeta);
         $done->{pkgs}{$pkg->name} = 1;
     }
 
@@ -117,7 +126,8 @@ sub _recursive_reflect {
     my @atts = ();
     foreach my $at ( sort { $a->insertion_order <=> $b->insertion_order } map { $meta->get_attribute($_) } $meta->get_attribute_list ) {
         next if $done->{attributes}{$at->name};
-        push @atts, _attribute_to_extjs($at, $options);
+        my $final_attribute = $tlmeta->find_attribute_by_name($at->name);
+        push @atts, _attribute_to_extjs($final_attribute, $obj, $options);
         $done->{attributes}{$at->name} = 1;
     }
 
@@ -137,15 +147,31 @@ sub _recursive_reflect {
     return @extjs;
 }
 
+sub _recursive_reflect_type {
+    my $type_constraint = shift;
+
+    return $EXTJS_DEFINITIONS{$type_constraint->name} if defined $EXTJS_DEFINITIONS{$type_constraint->name};
+    return _recursive_reflect_type($type_constraint->parent) if $type_constraint->has_parent;
+    return { template => {} };
+}
+
 sub _attribute_to_extjs {
-    my ($attribute, $options) = @_;
-    my @extjs = ();
+    my ($attribute, $obj, $options) = @_;
+    my %extjs = ();
 
-    push @extjs, {
-        title => _cleanup_attribute_name($attribute->name, $options),
-    };
+    if($attribute->has_type_constraint) {
+        my $def = _recursive_reflect_type($attribute->type_constraint);
+        my $value = $obj ? $attribute->get_value($obj) : $attribute->default($obj);
 
-    return @extjs;
+        %extjs = %{$def->{template}};
+
+        if($def->{value}) { $def->{value}->(\%extjs,$value,$obj); }
+        else              { $extjs{value} = $value if $value; }
+    }
+
+    $extjs{title} = _cleanup_attribute_name($attribute->name, $options);
+
+    return \%extjs;
 }
 
 sub _cleanup_package_name($$) {

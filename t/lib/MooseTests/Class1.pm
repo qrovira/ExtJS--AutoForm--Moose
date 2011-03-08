@@ -7,18 +7,18 @@ our $VERSION = "0.1";
 
 with "ExtJS::Reflection::Moose";
 
-has [qw(class1)] => ( is => "ro", isa => "Str" );
+has attr1 => ( is => "ro", isa => "Str" );
 
 sub results {
+    my @fields = (
+        { title => "attr1", xtype => "textfield" },
+    );
+
     return {
-        simple => [
-            { title => "class1" },
-        ],
+        simple => [ @fields ],
         hierarchy => [
             {
-                'children' => [
-                    { 'title' => 'class1' }
-                ],
+                'children' => [ @fields ],
                 'title' => 'MooseTests::Class1',
                 'xtype' => 'fieldgroup'
             },

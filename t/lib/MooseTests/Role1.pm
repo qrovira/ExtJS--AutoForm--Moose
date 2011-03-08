@@ -2,18 +2,17 @@ package MooseTests::Role1;
 
 use Moose::Role;
 
-has [qw(role1)] => ( is => "ro", isa => "Str" );
+has rattr1 => ( is => "ro", isa => "Str" );
 
 sub results {
+    my @fields = (
+            { title => "rattr1", xtype => "textfield" },
+    );
     return {
-        simple => [
-            { title => "role1" },
-        ],
+        simple => [ @fields ],
         hierarchy => [
             {
-                'children' => [
-                    { 'title' => 'role1' }
-                ],
+                'children' => [ @fields ],
                 'title' => 'MooseTests::Role1',
                 'xtype' => 'fieldgroup'
             },
