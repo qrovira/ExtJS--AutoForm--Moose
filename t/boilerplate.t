@@ -48,8 +48,8 @@ TODO: {
     "placeholder date/time"       => qr(Date/time)
   );
 
-  module_boilerplate_ok('lib/MooseX/ExtJS/Reflection.pm');
-  module_boilerplate_ok('lib/MooseX/ExtJS/Reflection/Types.pm');
+  module_boilerplate_ok('lib/ExtJS/AutoForm/Moose.pm');
+  module_boilerplate_ok('lib/ExtJS/AutoForm/Moose/Types.pm');
 
 }
 

@@ -6,7 +6,7 @@ use JSON::Any;
 extends "MooseTests::Class1";
 with "MooseTests::Role1";
 
-with "MooseX::ExtJS::Reflection";
+with "ExtJS::AutoForm::Moose";
 
 has attr3 => ( is => "ro", isa => "Str" );
 

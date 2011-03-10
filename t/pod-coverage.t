@@ -15,5 +15,5 @@ eval "use Pod::Coverage $min_pc";
 plan skip_all => "Pod::Coverage $min_pc required for testing POD coverage"
     if $@;
 
-pod_coverage_ok("MooseX::ExtJS::Reflection");
-pod_coverage_ok("MooseX::ExtJS::Reflection::Types");
+pod_coverage_ok("ExtJS::AutoForm::Moose");
+pod_coverage_ok("ExtJS::AutoForm::Moose::Types");

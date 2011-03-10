@@ -6,7 +6,7 @@ use JSON::Any;
 extends "MooseTests::Class1" => { -version => "0.1" };
 # test with module versioning too since i wasn't sure version was returned on some moose introspection apis
 
-with "MooseX::ExtJS::Reflection";
+with "ExtJS::AutoForm::Moose";
 
 has attr2 => ( is => "ro", isa => "Str" );
 

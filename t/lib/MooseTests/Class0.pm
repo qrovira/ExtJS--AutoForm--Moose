@@ -5,7 +5,7 @@ use JSON::Any;
 
 use Moose::Util::TypeConstraints;
 
-with "MooseX::ExtJS::Reflection";
+with "ExtJS::AutoForm::Moose";
 
 # Simple attributes
 has 'str'   => ( is => "rw", isa => "Str" );

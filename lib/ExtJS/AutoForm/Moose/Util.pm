@@ -1,10 +1,10 @@
-package MooseX::ExtJS::Reflection::Util;
+package ExtJS::AutoForm::Moose::Util;
 
 use warnings;
 use strict;
 
 use Carp qw(carp);
-use MooseX::ExtJS::Reflection::Types;
+use ExtJS::AutoForm::Moose::Types;
 
 #
 # This module contains pure functional code that recurses the mop hierarchy
@@ -68,11 +68,11 @@ sub _recursive_reflect_type {
     my $type_constraint = shift;
 
     # Registered type
-    return $MooseX::ExtJS::Reflection::Types::REGISTRY{$type_constraint->name}
-        if defined $MooseX::ExtJS::Reflection::Types::REGISTRY{$type_constraint->name};
+    return $ExtJS::AutoForm::Moose::Types::REGISTRY{$type_constraint->name}
+        if defined $ExtJS::AutoForm::Moose::Types::REGISTRY{$type_constraint->name};
 
     # Enum hack
-    return $MooseX::ExtJS::Reflection::Types::REGISTRY{__ENUM__}
+    return $ExtJS::AutoForm::Moose::Types::REGISTRY{__ENUM__}
         if $type_constraint->isa("Moose::Meta::TypeConstraint::Enum");
 
     # TypeConstraint recursion
@@ -97,7 +97,7 @@ sub _attribute_to_extjs {
 
         # Set attribute to readonly when invoked on an object instance and the attribute has no writer
         $extjs->{readOnly} = JSON::Any::true
-            if( (!exists $extjs->{readOnly}) and defined $obj and !$attribute->has_write_method);
+            if( (!exists $extjs->{readOnly}) and !$options->{no_readonly} and !$attribute->has_write_method );
         
         # Execute any subs on the template.. IDEA: DEEP recursion!
         for ( grep { ref($extjs->{$_}) eq "CODE" } keys(%$extjs) ) {
@@ -143,4 +143,4 @@ sub _cleanup_attribute_name($$) {
     return $n;
 }
 
-1; # End of MooseX::ExtJS::Reflection
+1; # End of ExtJS::AutoForm::Moose::Util

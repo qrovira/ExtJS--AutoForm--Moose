@@ -23,11 +23,11 @@ is_deeply( $class[2], { name => "int", fieldLabel => "int", xtype => "numberfiel
 is_deeply( $class[3], { name => "bool", fieldLabel => "bool", xtype => "checkbox" }, "Simple boolean attribute" );
 is_deeply( $class[4], { name => "tenum", fieldLabel => "tenum", xtype => "combo", store => [ qw(val1 val2 val3) ] }, "Simple boolean attribute" );
 
-is_deeply( $class[5], { name => "str_ro", fieldLabel => "str_ro", xtype => "textfield" }, "Read-only string attribute" );
-is_deeply( $class[6], { name => "num_ro", fieldLabel => "num_ro", xtype => "numberfield", allowDecimals => JSON::Any::true }, "Read-only number attribute" );
-is_deeply( $class[7], { name => "int_ro", fieldLabel => "int_ro", xtype => "numberfield", allowDecimals => JSON::Any::false }, "Read-only integer attribute" );
-is_deeply( $class[8], { name => "bool_ro", fieldLabel => "bool_ro", xtype => "checkbox" }, "Read-only boolean attribute" );
-is_deeply( $class[9], { name => "tenum_ro", fieldLabel => "tenum_ro", xtype => "combo", store => [ qw(val1 val2 val3) ] }, "Read-only boolean attribute" );
+is_deeply( $class[5], { name => "str_ro", fieldLabel => "str_ro", xtype => "textfield", readOnly => JSON::Any::true }, "Read-only string attribute" );
+is_deeply( $class[6], { name => "num_ro", fieldLabel => "num_ro", xtype => "numberfield", readOnly => JSON::Any::true, allowDecimals => JSON::Any::true }, "Read-only number attribute" );
+is_deeply( $class[7], { name => "int_ro", fieldLabel => "int_ro", xtype => "numberfield", readOnly => JSON::Any::true, allowDecimals => JSON::Any::false }, "Read-only integer attribute" );
+is_deeply( $class[8], { name => "bool_ro", fieldLabel => "bool_ro", xtype => "checkbox", readOnly => JSON::Any::true }, "Read-only boolean attribute" );
+is_deeply( $class[9], { name => "tenum_ro", fieldLabel => "tenum_ro", xtype => "combo", readOnly => JSON::Any::true, store => [ qw(val1 val2 val3) ] }, "Read-only boolean attribute" );
 
 
 # Generate extjs fields through an object instance

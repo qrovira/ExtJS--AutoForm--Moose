@@ -1,4 +1,4 @@
-package MooseX::ExtJS::Reflection::Types;
+package ExtJS::AutoForm::Moose::Types;
 
 use warnings;
 use strict;
@@ -9,7 +9,7 @@ use Carp qw(confess);
 
 =head1 NAME
 
-MooseX::ExtJS::Reflection::Types - Manage extjs form generation for Moose types
+ExtJS::AutoForm::Moose::Types - Manage extjs form generation for Moose types
 
 =cut
 
@@ -24,24 +24,24 @@ Those are in fact the current type reflections implemented, except for enum, whi
 
     reflect 'Str'  => extjs { {
         xtype => "textfield",
-        value => \&MooseX::ExtJS::Reflection::Types::value_or_default
+        value => \&ExtJS::AutoForm::Moose::Types::value_or_default
     } };
 
     reflect 'Num'  => extjs { {
         xtype => "numberfield",
         allowDecimals => JSON::Any::true,
-        value => \&MooseX::ExtJS::Reflection::Types::value_or_default
+        value => \&ExtJS::AutoForm::Moose::Types::value_or_default
     } };
 
     reflect 'Int'  => extjs { {
         xtype => "numberfield",
         allowDecimals => JSON::Any::false,
-        value => \&MooseX::ExtJS::Reflection::Types::value_or_default
+        value => \&ExtJS::AutoForm::Moose::Types::value_or_default
     } };
 
     reflect 'Bool' => extjs { {
         xtype => "checkbox",
-        checked => \&MooseX::ExtJS::Reflection::Types::value_or_default_bool
+        checked => \&ExtJS::AutoForm::Moose::Types::value_or_default_bool
     } };
 
 =head1 DESCRIPTION
@@ -49,7 +49,7 @@ Those are in fact the current type reflections implemented, except for enum, whi
 This module does two things: hold the registry of known type contraints reflections, and provide a bit of
 curry to ease adding reflections for new types based on their type name.
 
-=head1 SYNTAX CURRY
+=head2 Syntax curry
 
 =over
 
@@ -64,7 +64,7 @@ L</TEMAPLTE FORMAT> below).
 
 =back
 
-=head1 TEMPLATE FORMAT
+=head2 Template format
 
 The template format is the one used by ExtJS Component class creation. This means it does all
 it's job using xtypes and does not use any javascript functions.
@@ -95,16 +95,16 @@ In those cases you need to use javascript functions, you've got a few options:
 
 =over
 
-=item Don't
+=item * Don't
 
-If you read the manuals, there's really not that much that cannot be controlled through config
-parameters.
+If you read the ExtJS API docs carefully, you'll notice there's really not that much that cannot
+be controlled through config parameters.
 
-=item Extend the base ExtJS components
+=item * Extend the base ExtJS components
 
-It's not difficult, and you can register those with a new xtype.
+It's not difficult, and you can register those as a new xtype.
 
-=item Encode the generated structure yourself
+=item * Encode the generated structure yourself
 
 This seems like a dirty hack to me, and you'll probably be meriting for a place in hell, but...
 
@@ -139,10 +139,18 @@ sub reflect($$;$) {
     my $type_name = shift;
     my %p = map { %{$_} } @_; #really useless here. done this way since I was hoping to extend own Moose (sub)type sugar
 
-    if($REGISTRY{$type_name})
+    unless(ref($p{template}) eq "CODE")
     {
         local $Carp::CarpLevel = $Carp::CarpLevel + 1;
-        confess("The type reflection to extjs for type $type_name already exists");
+        confess("A callback must be provided for type reflection");
+    }
+
+    my $test = $p{template}->();
+
+    unless(ref($test) && ref($test) eq "HASH")
+    {
+        local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+        confess("The callback provided for '$type_name' reflection does not return a hash structure");
     }
 
     $REGISTRY{$type_name} = $p{template};
@@ -158,29 +166,29 @@ reflect 'Any'  => extjs { {
 
 reflect 'Str'  => extjs { {
     xtype => "textfield",
-    value => \&MooseX::ExtJS::Reflection::Types::value_or_default
+    value => \&ExtJS::AutoForm::Moose::Types::value_or_default
 } };
 
 reflect 'Num'  => extjs { {
     xtype => "numberfield",
     allowDecimals => JSON::Any::true,
-    value => \&MooseX::ExtJS::Reflection::Types::value_or_default
+    value => \&ExtJS::AutoForm::Moose::Types::value_or_default
 } };
 
 reflect 'Int'  => extjs { {
     xtype => "numberfield",
     allowDecimals => JSON::Any::false,
-    value => \&MooseX::ExtJS::Reflection::Types::value_or_default
+    value => \&ExtJS::AutoForm::Moose::Types::value_or_default
 } };
 
 reflect 'Bool' => extjs { {
     xtype => "checkbox",
-    checked => \&MooseX::ExtJS::Reflection::Types::value_or_default_bool
+    checked => \&ExtJS::AutoForm::Moose::Types::value_or_default_bool
 } };
 
 reflect '__ENUM__' => extjs { {
    xtype => "combo",
-   store => \&MooseX::ExtJS::Reflection::Types::enum_values,
+   store => \&ExtJS::AutoForm::Moose::Types::enum_values,
 } };
 
 =head1 REFLECTION HELPERS
@@ -252,7 +260,7 @@ be notified, and then you'll automatically be notified of progress on your bug a
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc MooseX::ExtJS::Reflection::Types
+    perldoc ExtJS::AutoForm::Moose::Types
 
 
 You can also look for information at:
@@ -261,19 +269,19 @@ You can also look for information at:
 
 =item * RT: CPAN's request tracker
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=MooseX-ExtJS-Reflection>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=ExtJS-AutoForm-Moose>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/Moosex-ExtJS-Reflection>
+L<http://annocpan.org/dist/ExtJS-AutoForm-Moose>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/MooseX-ExtJS-Reflection>
+L<http://cpanratings.perl.org/d/ExtJS-AutoForm-Moose>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/MooseX-ExtJS-Reflection/>
+L<http://search.cpan.org/dist/ExtJS-AutoForm-Moose/>
 
 =back
 
@@ -295,4 +303,4 @@ ExtJS trademarks are property of Sencha Labs L<http://www.sencha.com>
 
 =cut
 
-1; # End of MooseX::ExtJS::Reflection::Types
+1; # End of ExtJS::AutoForm::Moose::Types

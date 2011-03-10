@@ -13,7 +13,7 @@ for my $cn (1..3) {
     my $RESULTS = eval("return MooseTests::Class$cn\-\>results()");
 
     # simple reflection, through classname
-    eval("\@res = MooseTests::Class$cn\-\>extjs_fields;");
+    eval("\@res = MooseTests::Class$cn\-\>extjs_fields( no_readonly => 1 );");
     ok( !$@, "Reflection of MooseTests::Class$cn through package" )
         or diag("Error: $@");
     is_deeply( \@res, $RESULTS->{simple}, "Data comparison 1 on MooseTests::Class$cn" )
@@ -27,7 +27,7 @@ for my $cn (1..3) {
         or diag("Bogus definition: ".Dumper(\@res));
 
     # hierarchy-aware reflection, through classname
-    eval("\@res = MooseTests::Class$cn\-\>extjs_fields( 'hierarchy' => 1 );");
+    eval("\@res = MooseTests::Class$cn\-\>extjs_fields( 'hierarchy' => 1, no_readonly => 1 );");
     ok( !$@, "Reflection of MooseTests::Class$cn through package using hierarchy" )
         or diag("Error: $@");
     is_deeply( \@res, $RESULTS->{hierarchy}, "Data comparison 3 on MooseTests::Class$cn" )
